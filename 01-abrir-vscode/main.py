@@ -1,23 +1,44 @@
 import flet as ft
+from flet import Page
 import os
 from tkinter import filedialog, Tk
 import subprocess
 
-def main(page):
+color_purple = "#7d3c98"
+color_white = "#ffffff"
+
+def main(page: Page):
     # Define o tamanho da janela e o título
-    page.window_width = 600
-    page.window_height = 600
+    page.window.width = 600
+    page.window.height = 600
     page.title = "Administrar VSCode e GIT - Flet Python"
+    # Implementar cor de fundo da página
+    # page.bgcolor = "#f0f0f0"
 
     # Oculta a janela do Tkinter (usada apenas para selecionar a pasta)
     root = Tk()
     root.withdraw()
+    root.attributes("-topmost", True)
+    root.lift()
 
     # Variáveis para armazenar o caminho da pasta e entrada de usuário
-    pasta_selecionada = ft.Text(value="Nenhuma pasta selecionada", size=14)
-    branch_input = ft.TextField(label="Nome da Branch")
-    commit_message_input = ft.TextField(label="Mensagem do Commit")
-    output_text = ft.Text(value="Resultado do comando aparecerá aqui", size=12)
+    pasta_selecionada = ft.Text(
+        value="Nenhuma pasta selecionada",
+        size=14, color=color_purple,
+        weight='bold',
+    )
+    branch_input = ft.TextField(
+        label="Nome da Branch"
+    )
+    commit_message_input = ft.TextField(
+        label="Mensagem do Commit"
+    )
+    # Container para saída do terminal
+    output_text = ft.Text(
+        value="Resultado do comando aparecerá aqui",
+        size=12, color=color_purple,
+        weight='bold'
+    )
 
     # Função para executar comandos Git na pasta selecionada
     def executar_comando_git(comando):
@@ -94,36 +115,64 @@ def main(page):
         executar_comando_git(["git", "push"])
 
     # Botões e elementos da interface
-    botao_selecionar = ft.ElevatedButton("Selecionar Pasta", on_click=selecionar_pasta)
-    botao_abrir_vscode = ft.ElevatedButton("Abrir VSCode", on_click=abrir_vscode)
-    botao_abrir_terminal = ft.ElevatedButton("Abrir Terminal", on_click=abrir_terminal_powershell)
-    botao_pull = ft.ElevatedButton("Git Pull", on_click=git_pull)
-    botao_status = ft.ElevatedButton("Git Status", on_click=git_status)
-    botao_checkout = ft.ElevatedButton("Git Checkout", on_click=git_checkout)
-    botao_add = ft.ElevatedButton("Git Add .", on_click=git_add)
-    botao_commit = ft.ElevatedButton("Git Commit", on_click=git_commit)
-    botao_push = ft.ElevatedButton("Git Push", on_click=git_push)
+    botao_selecionar = ft.ElevatedButton("Selecionar Pasta", on_click=selecionar_pasta, bgcolor=color_purple, color=color_white)
+    botao_abrir_vscode = ft.ElevatedButton("Abrir VSCode", on_click=abrir_vscode, bgcolor=color_purple, color=color_white)
+    botao_abrir_terminal = ft.ElevatedButton("Abrir Terminal", on_click=abrir_terminal_powershell, bgcolor=color_purple, color=color_white)
+    botao_pull = ft.ElevatedButton("Git Pull", on_click=git_pull, bgcolor=color_purple, color=color_white)
+    botao_status = ft.ElevatedButton("Git Status", on_click=git_status, bgcolor=color_purple, color=color_white)
+    botao_checkout = ft.ElevatedButton("Git Checkout", on_click=git_checkout, bgcolor=color_purple, color=color_white)
+    botao_add = ft.ElevatedButton("Git Add .", on_click=git_add, bgcolor=color_purple, color=color_white)
+    botao_commit = ft.ElevatedButton("Git Commit", on_click=git_commit, bgcolor=color_purple, color=color_white)
+    botao_push = ft.ElevatedButton("Git Push", on_click=git_push, bgcolor=color_purple, color=color_white)
 
-    # Adiciona os elementos à página dentro de uma coluna com rolagem
-    page.add(
-        #Coluna com rolagem
-        ft.Column(
+    #Alinhando as interface em container
+    container_um = ft.Container(
+        content=ft.Row(
             controls=[
-                pasta_selecionada,
                 botao_selecionar,
                 botao_abrir_vscode,
                 botao_abrir_terminal,
-                branch_input,
-                botao_checkout,
+            ],
+            alignment=ft.MainAxisAlignment.CENTER
+        ),
+        alignment=ft.alignment.center
+    )
+    container_dois = ft.Container(
+        content=ft.Row(
+            controls=[
                 botao_pull,
                 botao_status,
-                botao_add,
-                commit_message_input,
+                botao_checkout,
+                botao_add
+            ],
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+        ),
+        alignment=ft.alignment.center
+    )
+    container_tres = ft.Container(
+        content=ft.Row(
+            controls=[
                 botao_commit,
                 botao_push,
+            ],
+            alignment=ft.MainAxisAlignment.CENTER
+        ),
+        alignment=ft.alignment.center
+    )
+
+    # Adiciona os elementos à página dentro de uma coluna com barra de rolagem
+    page.add(
+        ft.Column(
+            [
+                pasta_selecionada,
+                container_um,
+                branch_input,
+                container_dois,
+                commit_message_input,
+                container_tres,
                 output_text,
             ],
-            scroll="auto"
+            scroll="always"
         )
     )
 
