@@ -7,7 +7,7 @@ def main(page):
     # Define o tamanho da janela e o título
     page.window_width = 600
     page.window_height = 600
-    page.title = "Git & VSCode Manager - Flet"
+    page.title = "Administrar VSCode e GIT - Flet Python"
 
     # Oculta a janela do Tkinter (usada apenas para selecionar a pasta)
     root = Tk()
@@ -33,17 +33,34 @@ def main(page):
             output_text.value = f"Erro ao executar comando: {erro}"
             page.update()
 
-    # Funções para cada comando Git e VSCode
+    # Funções para cada comando VSCode, Terminal e GIT
     def selecionar_pasta(e):
         caminho_pasta = filedialog.askdirectory(title="Selecione uma pasta")
         if caminho_pasta:
             pasta_selecionada.value = f"Pasta selecionada: {caminho_pasta}"
             page.update()
 
+    def abrir_terminal_powershell(e):
+        caminho_pasta = pasta_selecionada.value.replace("Pasta selecionada: ", "")
+        if caminho_pasta and os.path.isdir(caminho_pasta):
+            # Caminho para o PowerShell 7 no Windows
+            pwsh_path = r"C:\Program Files\PowerShell\7\pwsh.exe"
+            if os.path.exists(pwsh_path):
+                os.system(f'start "" "{pwsh_path}" -NoExit -Command "cd \'{caminho_pasta}\'"')
+            else:
+                output_text.value = "PowerShell 7.4.6 não encontrado no caminho padrão, abrindo o padrão."
+                os.system(f"start powershell -NoExit -Command \"cd '{caminho_pasta}'\"")
+                page.update()
+        else:
+            output_text.value = "Por favor, selecione uma pasta válida primeiro!"
+            page.update()
+
     def abrir_vscode(e):
         caminho_pasta = pasta_selecionada.value.replace("Pasta selecionada: ", "")
         if caminho_pasta and os.path.isdir(caminho_pasta):
             os.system(f"code \"{caminho_pasta}\"")
+            output_text.value = "Visual Studio Code aberto com sucesso!"
+            page.update()
         else:
             output_text.value = "Por favor, selecione uma pasta válida primeiro!"
             page.update()
@@ -59,7 +76,7 @@ def main(page):
         if branch:
             executar_comando_git(["git", "checkout", branch])
         else:
-            output_text.value = "Por favor, insira o nome da branch."
+            executar_comando_git(["git", "checkout"])
             page.update()
 
     def git_add(e):
@@ -79,6 +96,7 @@ def main(page):
     # Botões e elementos da interface
     botao_selecionar = ft.ElevatedButton("Selecionar Pasta", on_click=selecionar_pasta)
     botao_abrir_vscode = ft.ElevatedButton("Abrir VSCode", on_click=abrir_vscode)
+    botao_abrir_terminal = ft.ElevatedButton("Abrir Terminal", on_click=abrir_terminal_powershell)
     botao_pull = ft.ElevatedButton("Git Pull", on_click=git_pull)
     botao_status = ft.ElevatedButton("Git Status", on_click=git_status)
     botao_checkout = ft.ElevatedButton("Git Checkout", on_click=git_checkout)
@@ -86,20 +104,27 @@ def main(page):
     botao_commit = ft.ElevatedButton("Git Commit", on_click=git_commit)
     botao_push = ft.ElevatedButton("Git Push", on_click=git_push)
 
-    # Adiciona os elementos à página
+    # Adiciona os elementos à página dentro de uma coluna com rolagem
     page.add(
-        pasta_selecionada,
-        botao_selecionar,
-        botao_abrir_vscode,
-        branch_input,
-        botao_checkout,
-        botao_pull,
-        botao_status,
-        botao_add,
-        commit_message_input,
-        botao_commit,
-        botao_push,
-        output_text
+        #Coluna com rolagem
+        ft.Column(
+            controls=[
+                pasta_selecionada,
+                botao_selecionar,
+                botao_abrir_vscode,
+                botao_abrir_terminal,
+                branch_input,
+                botao_checkout,
+                botao_pull,
+                botao_status,
+                botao_add,
+                commit_message_input,
+                botao_commit,
+                botao_push,
+                output_text,
+            ],
+            scroll="auto"
+        )
     )
 
 # Executa o aplicativo Flet
