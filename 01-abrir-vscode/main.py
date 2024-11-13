@@ -6,6 +6,7 @@ import subprocess
 
 color_purple = "#7d3c98"
 color_white = "#ffffff"
+ft_alignment = ft.MainAxisAlignment.START
 
 def main(page: Page) -> None:
     # Define o tamanho da janela e o título
@@ -100,17 +101,34 @@ def main(page: Page) -> None:
             executar_comando_git(["git", "checkout"])
             page.update()
 
-    def git_add(e):
+    def git_commit(e, mensagem: str | None):
         executar_comando_git(["git", "add", "."])
         output_text.value = "Mapeados arquivos para commits"
         page.update()
+        executar_comando_git(["git", "commit", "-m", mensagem])
+        commit_message_input.value = ''
+        page.update()
 
-    def git_commit(e):
+    def git_commit_fix(e):
         mensagem = commit_message_input.value
         if mensagem:
-            executar_comando_git(["git", "commit", "-m", mensagem])
-            commit_message_input.value = ''
+            git_commit(e, f'Fix: {mensagem}')
+        else:
+            output_text.value = "Por favor, insira a mensagem de commit."
             page.update()
+    
+    def git_commit_fea(e):
+        mensagem = commit_message_input.value
+        if mensagem:
+            git_commit(e, f'Fea: {mensagem}')
+        else:
+            output_text.value = "Por favor, insira a mensagem de commit."
+            page.update()
+
+    def git_commit_arq(e):
+        mensagem = commit_message_input.value
+        if mensagem:
+            git_commit(e, f'Arq: {mensagem}')
         else:
             output_text.value = "Por favor, insira a mensagem de commit."
             page.update()
@@ -125,8 +143,9 @@ def main(page: Page) -> None:
     botao_pull = ft.ElevatedButton("Pull", on_click=git_pull, bgcolor=color_purple, color=color_white)
     botao_status = ft.ElevatedButton("Status", on_click=git_status, bgcolor=color_purple, color=color_white)
     botao_checkout = ft.ElevatedButton("Checkout", on_click=git_checkout, bgcolor=color_purple, color=color_white)
-    botao_add = ft.ElevatedButton("Git Add .", on_click=git_add, bgcolor=color_purple, color=color_white)
-    botao_commit = ft.ElevatedButton("Commit", on_click=git_commit, bgcolor=color_purple, color=color_white)
+    botao_commit_fix = ft.ElevatedButton("Commit FIX", on_click=git_commit_fix, bgcolor=color_purple, color=color_white)
+    botao_commit_fea = ft.ElevatedButton("Commit FEA", on_click=git_commit_fea, bgcolor=color_purple, color=color_white)
+    botao_commit_arq = ft.ElevatedButton("Commit ARQ", on_click=git_commit_arq, bgcolor=color_purple, color=color_white)
     botao_push = ft.ElevatedButton("Push", on_click=git_push, bgcolor=color_purple, color=color_white)
 
     #Alinhando as interface em container
@@ -137,7 +156,7 @@ def main(page: Page) -> None:
                 botao_abrir_vscode,
                 botao_abrir_terminal,
             ],
-            alignment=ft.MainAxisAlignment.CENTER
+            alignment=ft_alignment
         ),
         alignment=ft.alignment.center
     )
@@ -146,20 +165,21 @@ def main(page: Page) -> None:
             controls=[
                 botao_pull,
                 botao_status,
-                botao_checkout,
-                botao_add
+                botao_checkout
             ],
-            alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+            alignment=ft_alignment
         ),
         alignment=ft.alignment.center
     )
     container_tres = ft.Container(
         content=ft.Row(
             controls=[
-                botao_commit,
+                botao_commit_fix,
+                botao_commit_fea,
+                botao_commit_arq,
                 botao_push,
             ],
-            alignment=ft.MainAxisAlignment.CENTER
+            alignment=ft_alignment
         ),
         alignment=ft.alignment.center
     )
