@@ -1,5 +1,5 @@
 import pytest
-# import subprocess
+import subprocess
 from unittest.mock import patch, MagicMock
 import main  # Importe seu arquivo principal
 
