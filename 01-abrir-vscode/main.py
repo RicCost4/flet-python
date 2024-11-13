@@ -7,11 +7,11 @@ import subprocess
 color_purple = "#7d3c98"
 color_white = "#ffffff"
 
-def main(page: Page):
+def main(page: Page) -> None:
     # Define o tamanho da janela e o título
-    page.window.width = 600
-    page.window.height = 600
     page.title = "Administrar VSCode e GIT - Flet Python"
+    page.window_height = 700
+    page.window_width = 550
     # Implementar cor de fundo da página
     # page.bgcolor = "#f0f0f0"
 
@@ -28,10 +28,12 @@ def main(page: Page):
         weight='bold',
     )
     branch_input = ft.TextField(
-        label="Nome da Branch"
+        label="Nome da Branch",
+        text_align=ft.TextAlign.RIGHT
     )
     commit_message_input = ft.TextField(
-        label="Mensagem do Commit"
+        label="Mensagem do Commit",
+        text_align=ft.TextAlign.RIGHT
     )
     # Container para saída do terminal
     output_text = ft.Text(
