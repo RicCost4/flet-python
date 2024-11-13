@@ -104,6 +104,7 @@ def main(page: Page) -> None:
 
     def git_add(e):
         executar_comando_git(["git", "add", "."])
+        output_text.value = "Mapeados arquivos para commits"
 
     def git_commit(e):
         mensagem = commit_message_input.value
