@@ -109,6 +109,8 @@ def main(page: Page) -> None:
         mensagem = commit_message_input.value
         if mensagem:
             executar_comando_git(["git", "commit", "-m", mensagem])
+            commit_message_input.value = ''
+            page.update()
         else:
             output_text.value = "Por favor, insira a mensagem de commit."
             page.update()
@@ -120,12 +122,12 @@ def main(page: Page) -> None:
     botao_selecionar = ft.ElevatedButton("Selecionar Pasta", on_click=selecionar_pasta, bgcolor=color_purple, color=color_white)
     botao_abrir_vscode = ft.ElevatedButton("Abrir VSCode", on_click=abrir_vscode, bgcolor=color_purple, color=color_white)
     botao_abrir_terminal = ft.ElevatedButton("Abrir Terminal", on_click=abrir_terminal_powershell, bgcolor=color_purple, color=color_white)
-    botao_pull = ft.ElevatedButton("Git Pull", on_click=git_pull, bgcolor=color_purple, color=color_white)
-    botao_status = ft.ElevatedButton("Git Status", on_click=git_status, bgcolor=color_purple, color=color_white)
-    botao_checkout = ft.ElevatedButton("Git Checkout", on_click=git_checkout, bgcolor=color_purple, color=color_white)
+    botao_pull = ft.ElevatedButton("Pull", on_click=git_pull, bgcolor=color_purple, color=color_white)
+    botao_status = ft.ElevatedButton("Status", on_click=git_status, bgcolor=color_purple, color=color_white)
+    botao_checkout = ft.ElevatedButton("Checkout", on_click=git_checkout, bgcolor=color_purple, color=color_white)
     botao_add = ft.ElevatedButton("Git Add .", on_click=git_add, bgcolor=color_purple, color=color_white)
-    botao_commit = ft.ElevatedButton("Git Commit", on_click=git_commit, bgcolor=color_purple, color=color_white)
-    botao_push = ft.ElevatedButton("Git Push", on_click=git_push, bgcolor=color_purple, color=color_white)
+    botao_commit = ft.ElevatedButton("Commit", on_click=git_commit, bgcolor=color_purple, color=color_white)
+    botao_push = ft.ElevatedButton("Push", on_click=git_push, bgcolor=color_purple, color=color_white)
 
     #Alinhando as interface em container
     container_um = ft.Container(
