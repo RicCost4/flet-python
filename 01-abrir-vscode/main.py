@@ -29,11 +29,9 @@ def main(page: Page) -> None:
     )
     branch_input = ft.TextField(
         label="Nome da Branch",
-        text_align=ft.TextAlign.RIGHT
     )
     commit_message_input = ft.TextField(
         label="Mensagem do Commit",
-        text_align=ft.TextAlign.RIGHT
     )
     # Container para saída do terminal
     output_text = ft.Text(
