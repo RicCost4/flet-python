@@ -34,6 +34,15 @@ def main(page: Page) -> None:
     commit_message_input = ft.TextField(
         label="Mensagem do Commit",
     )
+    user_name_input = ft.TextField(
+        label="Usuario Repositorio",
+    )
+    user_email_input = ft.TextField(
+        label="Email Usuario",
+    )
+    set_url_input = ft.TextField(
+        label="URL Repositorio",
+    )
     # Container para saída do terminal
     output_text = ft.Text(
         value="Resultado do comando aparecerá aqui",
@@ -103,13 +112,11 @@ def main(page: Page) -> None:
 
     def git_commit(e, mensagem: str | None):
         executar_comando_git(["git", "add", "."])
-        output_text.value = "Mapeados arquivos para commits"
-        page.update()
         executar_comando_git(["git", "commit", "-m", mensagem])
-        commit_message_input.value = ''
+        commit_message_input.value = None
         page.update()
 
-    def git_commit_fix(e):
+    def commit_fix(e):
         mensagem = commit_message_input.value
         if mensagem:
             git_commit(e, f'Fix: {mensagem}')
@@ -117,7 +124,7 @@ def main(page: Page) -> None:
             output_text.value = "Por favor, insira a mensagem de commit."
             page.update()
     
-    def git_commit_fea(e):
+    def commit_fea(e):
         mensagem = commit_message_input.value
         if mensagem:
             git_commit(e, f'Fea: {mensagem}')
@@ -125,7 +132,7 @@ def main(page: Page) -> None:
             output_text.value = "Por favor, insira a mensagem de commit."
             page.update()
 
-    def git_commit_arq(e):
+    def commit_arq(e):
         mensagem = commit_message_input.value
         if mensagem:
             git_commit(e, f'Arq: {mensagem}')
@@ -136,6 +143,35 @@ def main(page: Page) -> None:
     def git_push(e):
         executar_comando_git(["git", "push"])
 
+    def git_config_user_name(e):
+        user_name = user_name_input.value
+        if user_name:
+            executar_comando_git(["git", "config", "user.name", user_name])
+            user_name_input.value = None
+            page.update()
+        else:
+            output_text.value = "Por favor, insira o nome do usuário."
+            page.update()
+
+    def git_config_user_email(e):
+        user_email = user_email_input.value
+        if user_email:
+            executar_comando_git(["git", "config", "user.name", user_email])
+            user_email_input.value = None
+            page.update()
+        else:
+            output_text.value = "Por favor, insira o email do usuário."
+            page.update()
+    
+    def git_config_url(e):
+        url = set_url_input.value
+        if url:
+            executar_comando_git(["git", "remote", "set-url", "origin", url])
+            set_url_input.value = None
+            page.update()
+        else:
+            executar_comando_git(["git", "remote", "-v"])
+
     # Botões e elementos da interface
     botao_selecionar = ft.ElevatedButton("Selecionar Pasta", on_click=selecionar_pasta, bgcolor=color_purple, color=color_white)
     botao_abrir_vscode = ft.ElevatedButton("Abrir VSCode", on_click=abrir_vscode, bgcolor=color_purple, color=color_white)
@@ -143,10 +179,13 @@ def main(page: Page) -> None:
     botao_pull = ft.ElevatedButton("Pull", on_click=git_pull, bgcolor=color_purple, color=color_white)
     botao_status = ft.ElevatedButton("Status", on_click=git_status, bgcolor=color_purple, color=color_white)
     botao_checkout = ft.ElevatedButton("Checkout", on_click=git_checkout, bgcolor=color_purple, color=color_white)
-    botao_commit_fix = ft.ElevatedButton("Commit FIX", on_click=git_commit_fix, bgcolor=color_purple, color=color_white)
-    botao_commit_fea = ft.ElevatedButton("Commit FEA", on_click=git_commit_fea, bgcolor=color_purple, color=color_white)
-    botao_commit_arq = ft.ElevatedButton("Commit ARQ", on_click=git_commit_arq, bgcolor=color_purple, color=color_white)
+    botao_commit_fix = ft.ElevatedButton("Commit FIX", on_click=commit_fix, bgcolor=color_purple, color=color_white)
+    botao_commit_fea = ft.ElevatedButton("Commit FEA", on_click=commit_fea, bgcolor=color_purple, color=color_white)
+    botao_commit_arq = ft.ElevatedButton("Commit ARQ", on_click=commit_arq, bgcolor=color_purple, color=color_white)
     botao_push = ft.ElevatedButton("Push", on_click=git_push, bgcolor=color_purple, color=color_white)
+    botao_user_name = ft.ElevatedButton("Config User Name", on_click=git_config_user_name, bgcolor=color_purple, color=color_white)
+    botao_user_email = ft.ElevatedButton("Config User Email", on_click=git_config_user_email, bgcolor=color_purple, color=color_white)
+    botao_set_url = ft.ElevatedButton("Set URL", on_click=git_config_url, bgcolor=color_purple, color=color_white)
 
     #Alinhando as interface em container
     container_um = ft.Container(
@@ -165,7 +204,8 @@ def main(page: Page) -> None:
             controls=[
                 botao_pull,
                 botao_status,
-                botao_checkout
+                botao_checkout,
+                botao_push,
             ],
             alignment=ft_alignment
         ),
@@ -177,7 +217,6 @@ def main(page: Page) -> None:
                 botao_commit_fix,
                 botao_commit_fea,
                 botao_commit_arq,
-                botao_push,
             ],
             alignment=ft_alignment
         ),
