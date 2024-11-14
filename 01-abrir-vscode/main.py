@@ -23,32 +23,14 @@ def main(page: Page) -> None:
     root.lift()
 
     # Variáveis para armazenar o caminho da pasta e entrada de usuário
-    pasta_selecionada = ft.Text(
-        value="Nenhuma pasta selecionada",
-        size=14, color=color_purple,
-        weight='bold',
-    )
-    branch_input = ft.TextField(
-        label="Nome da Branch",
-    )
-    commit_message_input = ft.TextField(
-        label="Mensagem do Commit",
-    )
-    user_name_input = ft.TextField(
-        label="Usuario Repositorio",
-    )
-    user_email_input = ft.TextField(
-        label="Email Usuario",
-    )
-    set_url_input = ft.TextField(
-        label="URL Repositorio",
-    )
+    pasta_selecionada = ft.Text(value="Nenhuma pasta selecionada",size=14, color=color_purple,weight='bold')
+    branch_input = ft.TextField(label="Nome da Branch")
+    commit_message_input = ft.TextField(label="Mensagem do Commit")
+    user_name_input = ft.TextField(label="Usuario Repositorio")
+    user_email_input = ft.TextField(label="Email Usuario")
+    set_url_input = ft.TextField(label="URL Repositorio")
     # Container para saída do terminal
-    output_text = ft.Text(
-        value="Resultado do comando aparecerá aqui",
-        size=12, color=color_purple,
-        weight='bold'
-    )
+    output_text = ft.Text(value="Resultado do comando aparecerá aqui",size=12, color=color_purple,weight='bold')
 
     # Função para executar comandos Git na pasta selecionada
     def executar_comando_git(comando):
