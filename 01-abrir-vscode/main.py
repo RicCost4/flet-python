@@ -5,6 +5,9 @@ from tkinter import filedialog, Tk
 import subprocess
 
 color_purple = "#7d3c98"
+color_red = "#FF0000"
+color_orange = "#FF8000"
+color_green = "#00FF00"
 color_white = "#ffffff"
 ft_alignment = ft.MainAxisAlignment.START
 
@@ -23,14 +26,14 @@ def main(page: Page) -> None:
     root.lift()
 
     # Variáveis para armazenar o caminho da pasta e entrada de usuário
-    pasta_selecionada = ft.Text(value="Nenhuma pasta selecionada",size=14, color=color_purple,weight='bold')
+    pasta_selecionada = ft.Text(value="Nenhuma pasta selecionada",size=14, color=color_red,weight='bold')
     branch_input = ft.TextField(label="Nome da Branch")
     commit_message_input = ft.TextField(label="Mensagem do Commit")
     user_name_input = ft.TextField(label="Usuario Repositorio")
     user_email_input = ft.TextField(label="Email Usuario")
     set_url_input = ft.TextField(label="URL Repositorio")
     # Container para saída do terminal
-    output_text = ft.Text(value="Resultado do comando aparecerá aqui",size=12, color=color_purple,weight='bold')
+    output_text = ft.Text(value="Resultado do comando aparecerá aqui",size=12, color=color_green,weight='bold')
 
     # Função para executar comandos Git na pasta selecionada
     def executar_comando_git(comando):
@@ -161,9 +164,9 @@ def main(page: Page) -> None:
     botao_pull = ft.ElevatedButton("Pull", on_click=git_pull, bgcolor=color_purple, color=color_white)
     botao_status = ft.ElevatedButton("Status", on_click=git_status, bgcolor=color_purple, color=color_white)
     botao_checkout = ft.ElevatedButton("Checkout", on_click=git_checkout, bgcolor=color_purple, color=color_white)
-    botao_commit_fix = ft.ElevatedButton("Commit FIX", on_click=commit_fix, bgcolor=color_purple, color=color_white)
-    botao_commit_fea = ft.ElevatedButton("Commit FEA", on_click=commit_fea, bgcolor=color_purple, color=color_white)
-    botao_commit_arq = ft.ElevatedButton("Commit ARQ", on_click=commit_arq, bgcolor=color_purple, color=color_white)
+    botao_commit_fix = ft.ElevatedButton("Commit FIX", on_click=commit_fix, bgcolor=color_purple, color=color_green)
+    botao_commit_fea = ft.ElevatedButton("Commit FEA", on_click=commit_fea, bgcolor=color_purple, color=color_orange)
+    botao_commit_arq = ft.ElevatedButton("Commit ARQ", on_click=commit_arq, bgcolor=color_purple, color=color_red)
     botao_push = ft.ElevatedButton("Push", on_click=git_push, bgcolor=color_purple, color=color_white)
     botao_user_name = ft.ElevatedButton("Config User Name", on_click=git_config_user_name, bgcolor=color_purple, color=color_white)
     botao_user_email = ft.ElevatedButton("Config User Email", on_click=git_config_user_email, bgcolor=color_purple, color=color_white)
