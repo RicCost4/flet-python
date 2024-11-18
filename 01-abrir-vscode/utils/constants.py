@@ -1,0 +1,5 @@
+color_purple = "#7d3c98"
+color_red = "#FF0000"
+color_orange = "#FF8000"
+color_green = "#00FF00"
+color_white = "#ffffff"
