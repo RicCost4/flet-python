@@ -29,11 +29,85 @@ def main(page: Page) -> None:
     pasta_selecionada = ft.Text(value="Nenhuma pasta selecionada",size=14, color=color_red,weight='bold')
     branch_input = ft.TextField(label="Nome da Branch")
     commit_message_input = ft.TextField(label="Mensagem do Commit")
-    user_name_input = ft.TextField(label="Usuario Repositorio")
-    user_email_input = ft.TextField(label="Email Usuario")
-    set_url_input = ft.TextField(label="URL Repositorio")
     # Container para saída do terminal
     output_text = ft.Text(value="Resultado do comando aparecerá aqui",size=12, color=color_green,weight='bold')
+
+    # Função para abrir a nova janela de configurações de Git
+    def abrir_janela_git_config(e):
+        # Inputs para nome, email e URL
+        user_name_input = ft.TextField(label="Nome do Usuário")
+        user_email_input = ft.TextField(label="Email do Usuário")
+        set_url_input = ft.TextField(label="URL do Repositório")
+
+        # Funções para configurar valores
+        def git_config_user_name(e):
+            user_name = user_name_input.value
+            if user_name:
+                output_text.value = f"Usuário configurado: {user_name}"
+                subprocess.run(["git", "config", "user.name", user_name], text=True)
+            else:
+                output_text.value = "Por favor, insira o nome do usuário."
+            page.update()
+
+        def git_config_user_email(e):
+            user_email = user_email_input.value
+            if user_email:
+                output_text.value = f"Email configurado: {user_email}"
+                subprocess.run(["git", "config", "user.email", user_email], text=True)
+            else:
+                output_text.value = "Por favor, insira o email do usuário."
+            page.update()
+
+        def git_config_url(e):
+            url = set_url_input.value
+            if url:
+                output_text.value = f"URL configurada: {url}"
+                subprocess.run(["git", "remote", "set-url", "origin", url], text=True)
+            else:
+                output_text.value = "Por favor, insira a URL do repositório."
+            page.update()
+        
+        # Função para fechar o modal
+        def fechar_modal(e):
+            dlg.open = False
+            page.update()
+
+        # Botões na janela de configuração
+        botao_user_name = ft.ElevatedButton(
+            "Salvar Nome", on_click=git_config_user_name, bgcolor=color_purple, color=color_white
+        )
+        botao_user_email = ft.ElevatedButton(
+            "Salvar Email", on_click=git_config_user_email, bgcolor=color_purple, color=color_white
+        )
+        botao_set_url = ft.ElevatedButton(
+            "Salvar URL", on_click=git_config_url, bgcolor=color_purple, color=color_white
+        )
+        botao_fechar = ft.ElevatedButton(
+            "Fechar", on_click=fechar_modal, bgcolor="#ff0000", color=color_white
+        )
+
+        # Diálogo
+        dlg.content = ft.Column(
+            [
+                user_name_input,
+                botao_user_name,
+                user_email_input,
+                botao_user_email,
+                set_url_input,
+                botao_set_url,
+                botao_fechar,
+            ],
+            tight=True,
+        )
+        dlg.open = True
+        page.update()
+
+    # Dialog para configurações
+    dlg = ft.AlertDialog(
+        modal=True,
+        title=ft.Text("Configurações Git", color=color_purple, weight="bold"),
+        on_dismiss=lambda e: print("Janela fechada!"),
+    )
 
     # Função para executar comandos Git na pasta selecionada
     def executar_comando_git(comando):
@@ -128,35 +202,6 @@ def main(page: Page) -> None:
     def git_push(e):
         executar_comando_git(["git", "push"])
 
-    def git_config_user_name(e):
-        user_name = user_name_input.value
-        if user_name:
-            executar_comando_git(["git", "config", "user.name", user_name])
-            user_name_input.value = None
-            page.update()
-        else:
-            output_text.value = "Por favor, insira o nome do usuário."
-            page.update()
-
-    def git_config_user_email(e):
-        user_email = user_email_input.value
-        if user_email:
-            executar_comando_git(["git", "config", "user.name", user_email])
-            user_email_input.value = None
-            page.update()
-        else:
-            output_text.value = "Por favor, insira o email do usuário."
-            page.update()
-    
-    def git_config_url(e):
-        url = set_url_input.value
-        if url:
-            executar_comando_git(["git", "remote", "set-url", "origin", url])
-            set_url_input.value = None
-            page.update()
-        else:
-            executar_comando_git(["git", "remote", "-v"])
-
     # Botões e elementos da interface
     botao_selecionar = ft.ElevatedButton("Selecionar Pasta", on_click=selecionar_pasta, bgcolor=color_purple, color=color_white)
     botao_abrir_vscode = ft.ElevatedButton("Abrir VSCode", on_click=abrir_vscode, bgcolor=color_purple, color=color_white)
@@ -168,9 +213,7 @@ def main(page: Page) -> None:
     botao_commit_fea = ft.ElevatedButton("Commit FEA", on_click=commit_fea, bgcolor=color_purple, color=color_orange)
     botao_commit_arq = ft.ElevatedButton("Commit ARQ", on_click=commit_arq, bgcolor=color_purple, color=color_red)
     botao_push = ft.ElevatedButton("Push", on_click=git_push, bgcolor=color_purple, color=color_white)
-    botao_user_name = ft.ElevatedButton("Config User Name", on_click=git_config_user_name, bgcolor=color_purple, color=color_white)
-    botao_user_email = ft.ElevatedButton("Config User Email", on_click=git_config_user_email, bgcolor=color_purple, color=color_white)
-    botao_set_url = ft.ElevatedButton("Set URL", on_click=git_config_url, bgcolor=color_purple, color=color_white)
+    botao_abrir_config_git = ft.ElevatedButton("Configurações Git", on_click=abrir_janela_git_config, bgcolor=color_purple, color=color_white)
 
     #Alinhando as interface em container
     container_um = ft.Container(
@@ -207,6 +250,16 @@ def main(page: Page) -> None:
         ),
         alignment=ft.alignment.center
     )
+    container_quatro = ft.Container(
+        content=ft.Row(
+            controls=[
+                botao_abrir_config_git,
+                dlg,
+            ],
+            alignment=ft_alignment
+        ),
+        alignment=ft.alignment.center
+    )
 
     # Adiciona os elementos à página dentro de uma coluna com barra de rolagem
     page.add(
@@ -214,6 +267,7 @@ def main(page: Page) -> None:
             [
                 pasta_selecionada,
                 container_um,
+                container_quatro,
                 branch_input,
                 container_dois,
                 commit_message_input,
