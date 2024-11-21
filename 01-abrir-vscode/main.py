@@ -1,16 +1,16 @@
 import flet as ft
-import os
-from tkinter import filedialog, Tk
+from tkinter import Tk
 
 from utils.constants import Constants
-from utils.commands import Comandos
 from components.components import Component
 from services.git import Git
+from services.terminal import Terminal
 
 
 constants = Constants()
 component = Component()
 git = Git()
+terminal = Terminal()
 
 def main(page: ft.Page) -> None:
     # Define o tamanho da janela e o título
@@ -73,64 +73,51 @@ def main(page: ft.Page) -> None:
         title=component.text(value="Git Config", color=constants.color_purple, weight="bold"),
     )
 
-    # Funções para cada comando VSCode, Terminal e GIT
-    def selecionar_pasta(e):
-        caminho_pasta = filedialog.askdirectory(title="Selecione uma pasta")
-        if caminho_pasta:
-            pasta_selecionada.value = f"Pasta selecionada: {caminho_pasta}"
-            page.update()
-
-    def abrir_terminal_powershell(e):
-        caminho_pasta = pasta_selecionada.value.replace("Pasta selecionada: ", "")
-        if caminho_pasta and os.path.isdir(caminho_pasta):
-            # Caminho para o PowerShell 7 no Windows
-            pwsh_path = r"C:\Program Files\PowerShell\7\pwsh.exe"
-            if os.path.exists(pwsh_path):
-                os.system(f'start "" "{pwsh_path}" -NoExit -Command "cd \'{caminho_pasta}\'"')
-            else:
-                output_text.value = "PowerShell 7.4.6 não encontrado no caminho padrão, abrindo o padrão."
-                os.system(f"start powershell -NoExit -Command \"cd '{caminho_pasta}'\"")
-                page.update()
-        else:
-            output_text.value = "Por favor, selecione uma pasta válida primeiro!"
-            page.update()
-
-    def abrir_vscode(e):
-        caminho_pasta = pasta_selecionada.value.replace("Pasta selecionada: ", "")
-        if caminho_pasta and os.path.isdir(caminho_pasta):
-            os.system(f"code \"{caminho_pasta}\"")
-            output_text.value = "Visual Studio Code aberto com sucesso!"
-            page.update()
-        else:
-            output_text.value = "Por favor, selecione uma pasta válida primeiro!"
-            page.update()
-
-    # Botões e elementos da interface
-    botao_selecionar = component.button(title="Selecionar Pasta", function=selecionar_pasta, color=constants.color_white)
-    botao_abrir_vscode = component.button(title="Abrir VSCode", function=abrir_vscode, color=constants.color_white)
-    botao_abrir_terminal = component.button(title="Abrir Terminal", function=abrir_terminal_powershell, color=constants.color_white)
+    # Botões da interface
+    botao_selecionar = component.button(
+        title="Selecionar Pasta",
+        function=lambda evento: terminal.selecionar_pasta(
+            evento=evento, 
+            pasta_selecionada=pasta_selecionada,
+            page=page),
+        color=constants.color_white
+    )
+    botao_abrir_vscode = component.button(
+        title="Abrir VSCode",
+        function=lambda evento: terminal.abrir_vscode(
+            evento=evento, 
+            pasta_selecionada=pasta_selecionada,
+            page=page,
+            output_text=output_text),
+        color=constants.color_white
+    )
+    botao_abrir_terminal = component.button(
+        title="Abrir Terminal",
+        function=lambda evento: terminal.abrir_terminal_powershell(
+            evento=evento, 
+            pasta_selecionada=pasta_selecionada,
+            page=page,
+            output_text=output_text),
+        color=constants.color_white
+    )
     botao_pull = component.button(
         title="Pull", 
         function=lambda evento: git.git_pull(
             evento=evento, 
             page=page, 
             pasta_selecionada=pasta_selecionada, 
-            output_text=output_text
-        ), 
+            output_text=output_text), 
         color=constants.color_white
     )
-
     botao_status = component.button(
         title="Status", 
         function=lambda evento: git.git_status(
             evento=evento, 
             page=page, 
             pasta_selecionada=pasta_selecionada, 
-            output_text=output_text
-        ), 
+            output_text=output_text), 
         color=constants.color_white
     )
-
     botao_checkout = component.button(
         title="Checkout", 
         function=lambda evento: git.git_checkout(
@@ -138,11 +125,9 @@ def main(page: ft.Page) -> None:
             branch_input=branch_input, 
             page=page, 
             pasta_selecionada=pasta_selecionada, 
-            output_text=output_text
-        ), 
+            output_text=output_text), 
         color=constants.color_white
     )
-
     botao_commit_fix = component.button(
         title="Commit FIX", 
         function=lambda evento: git.commit_fix(
@@ -150,12 +135,10 @@ def main(page: ft.Page) -> None:
             page=page, 
             pasta_selecionada=pasta_selecionada, 
             output_text=output_text, 
-            commit_message_input=commit_message_input
-        ), 
+            commit_message_input=commit_message_input), 
         color=constants.color_green, 
         bg_color=constants.color_blue2
     )
-
     botao_commit_fea = component.button(
         title="Commit FEA", 
         function=lambda evento: git.commit_fea(
@@ -163,12 +146,10 @@ def main(page: ft.Page) -> None:
             page=page, 
             pasta_selecionada=pasta_selecionada, 
             output_text=output_text, 
-            commit_message_input=commit_message_input
-        ), 
+            commit_message_input=commit_message_input), 
         color=constants.color_green, 
         bg_color=constants.color_blue2
     )
-
     botao_commit_arq = component.button(
         title="Commit ARQ", 
         function=lambda evento: git.commit_arq(
@@ -176,20 +157,17 @@ def main(page: ft.Page) -> None:
             page=page, 
             pasta_selecionada=pasta_selecionada, 
             output_text=output_text, 
-            commit_message_input=commit_message_input
-        ), 
+            commit_message_input=commit_message_input), 
         color=constants.color_green, 
         bg_color=constants.color_blue2
     )
-
     botao_push = component.button(
         title="Push", 
         function=lambda evento: git.git_push(
             evento=evento, 
             page=page, 
             pasta_selecionada=pasta_selecionada, 
-            output_text=output_text
-        ), 
+            output_text=output_text), 
         color=constants.color_white, 
         bg_color=constants.color_blue
     )
