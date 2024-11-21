@@ -1,17 +1,15 @@
 import flet as ft
-from flet import Page
 import os
 from tkinter import filedialog, Tk
-import subprocess
 
-color_purple = "#7d3c98"
-color_red = "#FF0000"
-color_orange = "#FF8000"
-color_green = "#00FF00"
-color_white = "#ffffff"
-ft_alignment = ft.MainAxisAlignment.START
+from utils.constants import Constants
+from utils.commands import Comandos
+from utils.flet_tags import Flet_tags
 
-def main(page: Page) -> None:
+constants = Constants()
+flet_tags = Flet_tags()
+
+def main(page: ft.Page) -> None:
     # Define o tamanho da janela e o título
     page.title = "Administrar VSCode e GIT - Flet Python"
     page.window_height = 700
@@ -26,25 +24,25 @@ def main(page: Page) -> None:
     root.lift()
 
     # Variáveis para armazenar o caminho da pasta e entrada de usuário
-    pasta_selecionada = ft.Text(value="Nenhuma pasta selecionada",size=14, color=color_red,weight='bold')
-    branch_input = ft.TextField(label="Nome da Branch")
-    commit_message_input = ft.TextField(label="Mensagem do Commit")
+    pasta_selecionada = flet_tags.text(value="Nenhuma pasta selecionada", color=constants.color_red, size=14, weight='bold')
+    branch_input = flet_tags.inputs(text_label="Nome da Branch")
+    commit_message_input = flet_tags.inputs(text_label="Mensagem do Commit")
     # Container para saída do terminal
-    output_text = ft.Text(value="Resultado do comando aparecerá aqui",size=12, color=color_green,weight='bold')
+    output_text = flet_tags.text(value="Resultado do comando aparecerá aqui", color=constants.color_green, weight='bold')
 
     # Função para abrir a nova janela de configurações de Git
     def abrir_janela_git_config(e):
         # Inputs para nome, email e URL
-        user_name_input = ft.TextField(label="Nome do Usuário")
-        user_email_input = ft.TextField(label="Email do Usuário")
-        set_url_input = ft.TextField(label="URL do Repositório")
+        user_name_input = flet_tags.inputs(text_label="Nome do Usuário")
+        user_email_input = flet_tags.inputs(text_label="Email do Usuário")
+        set_url_input = flet_tags.inputs(text_label="URL do Repositório")
 
         # Funções para configurar valores
         def git_config_user_name(e):
             user_name = user_name_input.value
             if user_name:
                 output_text.value = f"Usuário configurado: {user_name}"
-                subprocess.run(["git", "config", "user.name", user_name], text=True)
+                Comandos.executar_comando_git(comando=["git", "config", "user.name", user_name], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
             else:
                 output_text.value = "Por favor, insira o nome do usuário."
             page.update()
@@ -53,7 +51,7 @@ def main(page: Page) -> None:
             user_email = user_email_input.value
             if user_email:
                 output_text.value = f"Email configurado: {user_email}"
-                subprocess.run(["git", "config", "user.email", user_email], text=True)
+                Comandos.executar_comando_git(comando=["git", "config", "user.email", user_email], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
             else:
                 output_text.value = "Por favor, insira o email do usuário."
             page.update()
@@ -62,29 +60,21 @@ def main(page: Page) -> None:
             url = set_url_input.value
             if url:
                 output_text.value = f"URL configurada: {url}"
-                subprocess.run(["git", "remote", "set-url", "origin", url], text=True)
+                Comandos.executar_comando_git(comando=["git", "remote", "set-url", "origin", url], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
             else:
                 output_text.value = "Por favor, insira a URL do repositório."
             page.update()
-        
+
         # Função para fechar o modal
         def fechar_modal(e):
             dlg.open = False
             page.update()
 
         # Botões na janela de configuração
-        botao_user_name = ft.ElevatedButton(
-            "Salvar Nome", on_click=git_config_user_name, bgcolor=color_purple, color=color_white
-        )
-        botao_user_email = ft.ElevatedButton(
-            "Salvar Email", on_click=git_config_user_email, bgcolor=color_purple, color=color_white
-        )
-        botao_set_url = ft.ElevatedButton(
-            "Salvar URL", on_click=git_config_url, bgcolor=color_purple, color=color_white
-        )
-        botao_fechar = ft.ElevatedButton(
-            "Fechar", on_click=fechar_modal, bgcolor="#ff0000", color=color_white
-        )
+        botao_user_name = flet_tags.button(title="Salvar Nome", function=git_config_user_name, color=constants.color_white)
+        botao_user_email = flet_tags.button(title="Salvar Email", function=git_config_user_email, color=constants.color_white)
+        botao_set_url = flet_tags.button(title="Salvar URL", function=git_config_url, color=constants.color_white)
+        botao_fechar = flet_tags.button(title="Fechar", function=fechar_modal, color=constants.color_red, bg_color=constants.color_white)
 
         # Diálogo
         dlg.content = ft.Column(
@@ -105,23 +95,8 @@ def main(page: Page) -> None:
     # Dialog para configurações
     dlg = ft.AlertDialog(
         modal=True,
-        title=ft.Text("Configurações Git", color=color_purple, weight="bold"),
-        on_dismiss=lambda e: print("Janela fechada!"),
+        title=flet_tags.text(value="Git Config", color=constants.color_purple, weight="bold"),
     )
-
-    # Função para executar comandos Git na pasta selecionada
-    def executar_comando_git(comando):
-        try:
-            # Executa o comando na pasta selecionada
-            resultado = subprocess.run(
-                comando, cwd=pasta_selecionada.value.replace("Pasta selecionada: ", ""),
-                text=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            )
-            output_text.value = resultado.stdout or resultado.stderr
-            page.update()
-        except Exception as erro:
-            output_text.value = f"Erro ao executar comando: {erro}"
-            page.update()
 
     # Funções para cada comando VSCode, Terminal e GIT
     def selecionar_pasta(e):
@@ -156,22 +131,21 @@ def main(page: Page) -> None:
             page.update()
 
     def git_pull(e):
-        executar_comando_git(["git", "pull"])
+        Comandos.executar_comando_git(comando=["git", "pull"], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
 
     def git_status(e):
-        executar_comando_git(["git", "status"])
+        Comandos.executar_comando_git(comando=["git", "status"], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
 
     def git_checkout(e):
         branch = branch_input.value
         if branch:
-            executar_comando_git(["git", "checkout", branch])
+            Comandos.executar_comando_git(comando=["git", "checkout", branch], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
         else:
-            executar_comando_git(["git", "checkout"])
-            page.update()
+            Comandos.executar_comando_git(comando=["git", "checkout"], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
 
     def git_commit(e, mensagem: str | None):
-        executar_comando_git(["git", "add", "."])
-        executar_comando_git(["git", "commit", "-m", mensagem])
+        Comandos.executar_comando_git(comando=["git", "add", "."], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
+        Comandos.executar_comando_git(comando=["git", "commit", "-m", mensagem], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
         commit_message_input.value = None
         page.update()
 
@@ -200,20 +174,20 @@ def main(page: Page) -> None:
             page.update()
 
     def git_push(e):
-        executar_comando_git(["git", "push"])
+        Comandos.executar_comando_git(comando=["git", "push"], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
 
     # Botões e elementos da interface
-    botao_selecionar = ft.ElevatedButton("Selecionar Pasta", on_click=selecionar_pasta, bgcolor=color_purple, color=color_white)
-    botao_abrir_vscode = ft.ElevatedButton("Abrir VSCode", on_click=abrir_vscode, bgcolor=color_purple, color=color_white)
-    botao_abrir_terminal = ft.ElevatedButton("Abrir Terminal", on_click=abrir_terminal_powershell, bgcolor=color_purple, color=color_white)
-    botao_pull = ft.ElevatedButton("Pull", on_click=git_pull, bgcolor=color_purple, color=color_white)
-    botao_status = ft.ElevatedButton("Status", on_click=git_status, bgcolor=color_purple, color=color_white)
-    botao_checkout = ft.ElevatedButton("Checkout", on_click=git_checkout, bgcolor=color_purple, color=color_white)
-    botao_commit_fix = ft.ElevatedButton("Commit FIX", on_click=commit_fix, bgcolor=color_purple, color=color_green)
-    botao_commit_fea = ft.ElevatedButton("Commit FEA", on_click=commit_fea, bgcolor=color_purple, color=color_orange)
-    botao_commit_arq = ft.ElevatedButton("Commit ARQ", on_click=commit_arq, bgcolor=color_purple, color=color_red)
-    botao_push = ft.ElevatedButton("Push", on_click=git_push, bgcolor=color_purple, color=color_white)
-    botao_abrir_config_git = ft.ElevatedButton("Configurações Git", on_click=abrir_janela_git_config, bgcolor=color_purple, color=color_white)
+    botao_selecionar = flet_tags.button(title="Selecionar Pasta", function=selecionar_pasta, color=constants.color_white)
+    botao_abrir_vscode = flet_tags.button(title="Abrir VSCode", function=abrir_vscode, color=constants.color_white)
+    botao_abrir_terminal = flet_tags.button(title="Abrir Terminal", function=abrir_terminal_powershell, color=constants.color_white)
+    botao_pull = flet_tags.button(title="Pull", function=git_pull, color=constants.color_white)
+    botao_status = flet_tags.button(title="Status", function=git_status, color=constants.color_white)
+    botao_checkout = flet_tags.button(title="Checkout", function=git_checkout, color=constants.color_white)
+    botao_commit_fix = flet_tags.button(title="Commit FIX", function=commit_fix, color=constants.color_green, bg_color=constants.color_blue2)
+    botao_commit_fea = flet_tags.button(title="Commit FEA", function=commit_fea, color=constants.color_orange, bg_color=constants.color_blue2)
+    botao_commit_arq = flet_tags.button(title="Commit ARQ", function=commit_arq, color=constants.color_red, bg_color=constants.color_blue2)
+    botao_push = flet_tags.button(title="Push", function=git_push, color=constants.color_white, bg_color=constants.color_blue)
+    botao_abrir_config_git = flet_tags.button(title="Git Config", function=abrir_janela_git_config, color=constants.color_white)
 
     #Alinhando as interface em container
     container_um = ft.Container(
@@ -223,7 +197,7 @@ def main(page: Page) -> None:
                 botao_abrir_vscode,
                 botao_abrir_terminal,
             ],
-            alignment=ft_alignment
+            alignment=constants.ft_alignment
         ),
         alignment=ft.alignment.center
     )
@@ -233,9 +207,10 @@ def main(page: Page) -> None:
                 botao_pull,
                 botao_status,
                 botao_checkout,
-                botao_push,
+                botao_abrir_config_git,
+                dlg,
             ],
-            alignment=ft_alignment
+            alignment=constants.ft_alignment
         ),
         alignment=ft.alignment.center
     )
@@ -245,18 +220,9 @@ def main(page: Page) -> None:
                 botao_commit_fix,
                 botao_commit_fea,
                 botao_commit_arq,
+                botao_push,
             ],
-            alignment=ft_alignment
-        ),
-        alignment=ft.alignment.center
-    )
-    container_quatro = ft.Container(
-        content=ft.Row(
-            controls=[
-                botao_abrir_config_git,
-                dlg,
-            ],
-            alignment=ft_alignment
+            alignment=constants.ft_alignment
         ),
         alignment=ft.alignment.center
     )
@@ -267,7 +233,6 @@ def main(page: Page) -> None:
             [
                 pasta_selecionada,
                 container_um,
-                container_quatro,
                 branch_input,
                 container_dois,
                 commit_message_input,
