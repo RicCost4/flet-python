@@ -2,7 +2,7 @@ import flet as ft
 from typing import Any
 from utils.constants import Constants
 
-class Flet_tags:
+class Component:
     constants = Constants()
     @classmethod
     def button(cls, title:str, function:Any | None, color:str, bg_color:str = constants.color_purple) -> ft.ElevatedButton:

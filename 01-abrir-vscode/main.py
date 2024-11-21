@@ -4,10 +4,13 @@ from tkinter import filedialog, Tk
 
 from utils.constants import Constants
 from utils.commands import Comandos
-from utils.flet_tags import Flet_tags
+from components.components import Component
+from services.git import Git
+
 
 constants = Constants()
-flet_tags = Flet_tags()
+component = Component()
+git = Git()
 
 def main(page: ft.Page) -> None:
     # Define o tamanho da janela e o título
@@ -24,46 +27,18 @@ def main(page: ft.Page) -> None:
     root.lift()
 
     # Variáveis para armazenar o caminho da pasta e entrada de usuário
-    pasta_selecionada = flet_tags.text(value="Nenhuma pasta selecionada", color=constants.color_red, size=14, weight='bold')
-    branch_input = flet_tags.inputs(text_label="Nome da Branch")
-    commit_message_input = flet_tags.inputs(text_label="Mensagem do Commit")
+    pasta_selecionada = component.text(value="Nenhuma pasta selecionada", color=constants.color_red, size=14, weight='bold')
+    branch_input = component.inputs(text_label="Nome da Branch")
+    commit_message_input = component.inputs(text_label="Mensagem do Commit")
     # Container para saída do terminal
-    output_text = flet_tags.text(value="Resultado do comando aparecerá aqui", color=constants.color_green, weight='bold')
+    output_text = component.text(value="Resultado do comando aparecerá aqui", color=constants.color_green, weight='bold')
 
     # Função para abrir a nova janela de configurações de Git
     def abrir_janela_git_config(e):
         # Inputs para nome, email e URL
-        user_name_input = flet_tags.inputs(text_label="Nome do Usuário")
-        user_email_input = flet_tags.inputs(text_label="Email do Usuário")
-        set_url_input = flet_tags.inputs(text_label="URL do Repositório")
-
-        # Funções para configurar valores
-        def git_config_user_name(e):
-            user_name = user_name_input.value
-            if user_name:
-                output_text.value = f"Usuário configurado: {user_name}"
-                Comandos.executar_comando_git(comando=["git", "config", "user.name", user_name], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
-            else:
-                output_text.value = "Por favor, insira o nome do usuário."
-            page.update()
-
-        def git_config_user_email(e):
-            user_email = user_email_input.value
-            if user_email:
-                output_text.value = f"Email configurado: {user_email}"
-                Comandos.executar_comando_git(comando=["git", "config", "user.email", user_email], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
-            else:
-                output_text.value = "Por favor, insira o email do usuário."
-            page.update()
-
-        def git_config_url(e):
-            url = set_url_input.value
-            if url:
-                output_text.value = f"URL configurada: {url}"
-                Comandos.executar_comando_git(comando=["git", "remote", "set-url", "origin", url], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
-            else:
-                output_text.value = "Por favor, insira a URL do repositório."
-            page.update()
+        user_name_input = component.inputs(text_label="Nome do Usuário")
+        user_email_input = component.inputs(text_label="Email do Usuário")
+        set_url_input = component.inputs(text_label="URL do Repositório")
 
         # Função para fechar o modal
         def fechar_modal(e):
@@ -71,10 +46,10 @@ def main(page: ft.Page) -> None:
             page.update()
 
         # Botões na janela de configuração
-        botao_user_name = flet_tags.button(title="Salvar Nome", function=git_config_user_name, color=constants.color_white)
-        botao_user_email = flet_tags.button(title="Salvar Email", function=git_config_user_email, color=constants.color_white)
-        botao_set_url = flet_tags.button(title="Salvar URL", function=git_config_url, color=constants.color_white)
-        botao_fechar = flet_tags.button(title="Fechar", function=fechar_modal, color=constants.color_red, bg_color=constants.color_white)
+        botao_user_name = component.button(title="Salvar Nome", function=git.git_config_user_name(evento=e, user_name_input=user_name_input, output_text=output_text, page=page, pasta_selecionada=pasta_selecionada), color=constants.color_white)
+        botao_user_email = component.button(title="Salvar Email", function=git.git_config_user_email(evento=e, user_email_input=user_email_input, output_text=output_text, page=page, pasta_selecionada=pasta_selecionada), color=constants.color_white)
+        botao_set_url = component.button(title="Salvar URL", function=git.git_config_url(evento=e, set_url_input=set_url_input, output_text=output_text, page=page, pasta_selecionada=pasta_selecionada), color=constants.color_white)
+        botao_fechar = component.button(title="Fechar", function=fechar_modal, bg_color=constants.color_red, color=constants.color_white)
 
         # Diálogo
         dlg.content = ft.Column(
@@ -95,7 +70,7 @@ def main(page: ft.Page) -> None:
     # Dialog para configurações
     dlg = ft.AlertDialog(
         modal=True,
-        title=flet_tags.text(value="Git Config", color=constants.color_purple, weight="bold"),
+        title=component.text(value="Git Config", color=constants.color_purple, weight="bold"),
     )
 
     # Funções para cada comando VSCode, Terminal e GIT
@@ -130,64 +105,95 @@ def main(page: ft.Page) -> None:
             output_text.value = "Por favor, selecione uma pasta válida primeiro!"
             page.update()
 
-    def git_pull(e):
-        Comandos.executar_comando_git(comando=["git", "pull"], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
-
-    def git_status(e):
-        Comandos.executar_comando_git(comando=["git", "status"], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
-
-    def git_checkout(e):
-        branch = branch_input.value
-        if branch:
-            Comandos.executar_comando_git(comando=["git", "checkout", branch], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
-        else:
-            Comandos.executar_comando_git(comando=["git", "checkout"], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
-
-    def git_commit(e, mensagem: str | None):
-        Comandos.executar_comando_git(comando=["git", "add", "."], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
-        Comandos.executar_comando_git(comando=["git", "commit", "-m", mensagem], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
-        commit_message_input.value = None
-        page.update()
-
-    def commit_fix(e):
-        mensagem = commit_message_input.value
-        if mensagem:
-            git_commit(e, f'Fix: {mensagem}')
-        else:
-            output_text.value = "Por favor, insira a mensagem de commit."
-            page.update()
-    
-    def commit_fea(e):
-        mensagem = commit_message_input.value
-        if mensagem:
-            git_commit(e, f'Fea: {mensagem}')
-        else:
-            output_text.value = "Por favor, insira a mensagem de commit."
-            page.update()
-
-    def commit_arq(e):
-        mensagem = commit_message_input.value
-        if mensagem:
-            git_commit(e, f'Arq: {mensagem}')
-        else:
-            output_text.value = "Por favor, insira a mensagem de commit."
-            page.update()
-
-    def git_push(e):
-        Comandos.executar_comando_git(comando=["git", "push"], page=page, pasta_selecionada=pasta_selecionada, output_text=output_text)
-
     # Botões e elementos da interface
-    botao_selecionar = flet_tags.button(title="Selecionar Pasta", function=selecionar_pasta, color=constants.color_white)
-    botao_abrir_vscode = flet_tags.button(title="Abrir VSCode", function=abrir_vscode, color=constants.color_white)
-    botao_abrir_terminal = flet_tags.button(title="Abrir Terminal", function=abrir_terminal_powershell, color=constants.color_white)
-    botao_pull = flet_tags.button(title="Pull", function=git_pull, color=constants.color_white)
-    botao_status = flet_tags.button(title="Status", function=git_status, color=constants.color_white)
-    botao_checkout = flet_tags.button(title="Checkout", function=git_checkout, color=constants.color_white)
-    botao_commit_fix = flet_tags.button(title="Commit FIX", function=commit_fix, color=constants.color_green, bg_color=constants.color_blue2)
-    botao_commit_fea = flet_tags.button(title="Commit FEA", function=commit_fea, color=constants.color_orange, bg_color=constants.color_blue2)
-    botao_commit_arq = flet_tags.button(title="Commit ARQ", function=commit_arq, color=constants.color_red, bg_color=constants.color_blue2)
-    botao_push = flet_tags.button(title="Push", function=git_push, color=constants.color_white, bg_color=constants.color_blue)
-    botao_abrir_config_git = flet_tags.button(title="Git Config", function=abrir_janela_git_config, color=constants.color_white)
+    botao_selecionar = component.button(title="Selecionar Pasta", function=selecionar_pasta, color=constants.color_white)
+    botao_abrir_vscode = component.button(title="Abrir VSCode", function=abrir_vscode, color=constants.color_white)
+    botao_abrir_terminal = component.button(title="Abrir Terminal", function=abrir_terminal_powershell, color=constants.color_white)
+    botao_pull = component.button(
+        title="Pull", 
+        function=lambda evento: git.git_pull(
+            evento=evento, 
+            page=page, 
+            pasta_selecionada=pasta_selecionada, 
+            output_text=output_text
+        ), 
+        color=constants.color_white
+    )
+
+    botao_status = component.button(
+        title="Status", 
+        function=lambda evento: git.git_status(
+            evento=evento, 
+            page=page, 
+            pasta_selecionada=pasta_selecionada, 
+            output_text=output_text
+        ), 
+        color=constants.color_white
+    )
+
+    botao_checkout = component.button(
+        title="Checkout", 
+        function=lambda evento: git.git_checkout(
+            evento=evento, 
+            branch_input=branch_input, 
+            page=page, 
+            pasta_selecionada=pasta_selecionada, 
+            output_text=output_text
+        ), 
+        color=constants.color_white
+    )
+
+    botao_commit_fix = component.button(
+        title="Commit FIX", 
+        function=lambda evento: git.commit_fix(
+            evento=evento, 
+            page=page, 
+            pasta_selecionada=pasta_selecionada, 
+            output_text=output_text, 
+            commit_message_input=commit_message_input
+        ), 
+        color=constants.color_green, 
+        bg_color=constants.color_blue2
+    )
+
+    botao_commit_fea = component.button(
+        title="Commit FEA", 
+        function=lambda evento: git.commit_fea(
+            evento=evento, 
+            page=page, 
+            pasta_selecionada=pasta_selecionada, 
+            output_text=output_text, 
+            commit_message_input=commit_message_input
+        ), 
+        color=constants.color_green, 
+        bg_color=constants.color_blue2
+    )
+
+    botao_commit_arq = component.button(
+        title="Commit ARQ", 
+        function=lambda evento: git.commit_arq(
+            evento=evento, 
+            page=page, 
+            pasta_selecionada=pasta_selecionada, 
+            output_text=output_text, 
+            commit_message_input=commit_message_input
+        ), 
+        color=constants.color_green, 
+        bg_color=constants.color_blue2
+    )
+
+    botao_push = component.button(
+        title="Push", 
+        function=lambda evento: git.git_push(
+            evento=evento, 
+            page=page, 
+            pasta_selecionada=pasta_selecionada, 
+            output_text=output_text
+        ), 
+        color=constants.color_white, 
+        bg_color=constants.color_blue
+    )
+    botao_abrir_config_git = component.button(title="Git Config", function=abrir_janela_git_config, color=constants.color_white)
 
     #Alinhando as interface em container
     container_um = ft.Container(
